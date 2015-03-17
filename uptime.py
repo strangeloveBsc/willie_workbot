@@ -207,7 +207,7 @@ def join(willie, trigger):
     if(sender_l not in botswana.working_minutes):
         botswana.working_minutes[sender_l] = 0
 
-@willie.module.nickname_commands('tell')
+@willie.module.nickname_commands('sag')
 def addMessage(willie, trigger):
     sender_l = (str(trigger.nick)).lower()
     receiver_l = str(trigger.group(3)).lower()
@@ -217,9 +217,10 @@ def addMessage(willie, trigger):
     
     if(receiver_l not in botswana.working_minutes):
         willie.msg(sender_l, "Kenn ich nicht, mach ich trotzdem!")
+    if(receiver_l  not in botswana.pending_messages):
         botswana.pending_messages[receiver_l] = []
     
-    botswana.pending_messages[receiver_l].append(sender_l + " lässt ausrichten: \n" + str(trigger.group(2)))
+    botswana.pending_messages[receiver_l].append(sender_l + " lässt ausrichten: \n" + str(trigger.group(3)))
     
     
 
