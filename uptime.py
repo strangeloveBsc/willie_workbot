@@ -129,7 +129,7 @@ def add(willie, trigger):
 
     if(sender_l in botswana.active_list.keys()):
         willie.say("Kollege, du bist doch eingestempelt!")
-        willie.say("Einmal ausstempeln, wenn du die Zeiten korrigieren willst")
+#        willie.say("Einmal ausstempeln, wenn du die Zeiten korrigieren willst")
         return
 
     if(sender_l in friends.keys()):
@@ -138,8 +138,8 @@ def add(willie, trigger):
         willie.say("Ohai thar, " + sender)
 
     if (sender_l not in botswana.week_list):
-        willie.say(sender + " bitte verrate mir noch deine wochenarbeitszeit!")
-        willie.say(sender + " wtime <Zeit in Stunden>")
+        willie.msg(sender_l,  " bitte verrate mir noch deine wochenarbeitszeit!")
+        willie.msg(sender_l, " wtime <Zeit in Stunden>")
     if (sender_l not in botswana.working_minutes):
         botswana.working_minutes[sender_l] = 0
     else:
@@ -183,7 +183,7 @@ def remove(willie, trigger):
             botswana.pending_messages[sender_l].append("Du hast noch keine Wochenstunden eingetragen!")
         del botswana.active_list[sender_l]
     else:
-        willie.say("Hö? Wer? Du bist doch gar nicht eingestempelt!")
+        willie.msg(sender_l, "Hö? Wer? Du bist doch gar nicht eingestempelt!")
 
 @willie.module.nickname_commands('was geht', 'status')
 def status(willie, trigger):
@@ -230,7 +230,7 @@ def addMessage(willie, trigger):
     botswana.pending_messages[receiver_l].append(sender_l + " lässt ausrichten: ")
     botswana.pending_messages[receiver_l].append(str(' '.join(trigger.group(0).split(" ")[3:])))
     botswana.pending_messages[receiver_l].append("\n")
-    willie.say("Erledigt")
+    willie.msg(sender_l, "Erledigt")
     
 
 
