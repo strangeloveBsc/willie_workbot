@@ -20,7 +20,7 @@ friends = {"name1":"greeting1", "name2":"greeting2"}
 today = datetime.date
 botswana = botStatus()
 
-def check():
+def check(willie):
     for user in active_list.keys():
         willie.msg(user, "!!! Du wurdest automatisch ausgestempelt !!!")
         willie.msg(user, "Bitte trage deine Arbeitszeit für gestern nach.")
@@ -144,6 +144,11 @@ def add(willie, trigger):
         botswana.working_minutes[sender_l] = 0
     else:
         willie.msg(sender, "Deine bisherige Wochenarbeitszeit ist " + seconds2time(botswana.working_minutes[sender_l]))
+    
+    if (sender_l in botswana.pending_messages):
+        for msg in botswana.pending_messages[sender_l]:
+            willie.msg(sender_l, msg)
+        botswana.pending_messages[sender_l] = []
 
 # Sign the user in:
     botswana.active_list[sender_l] = time.time()
@@ -155,7 +160,7 @@ def remove(willie, trigger):
     sender = str(trigger.nick)
     print(sender + " said goodbye")
     sender_l = sender.lower()
-    if(sender_l in botswanaactive_list.keys()):
+    if(sender_l in botswana.active_list.keys()):
 
         delta = time.time() - botswana.active_list[sender_l]
         delta_str = seconds2time(delta)
@@ -211,7 +216,7 @@ def join(willie, trigger):
 def addMessage(willie, trigger):
     sender_l = (str(trigger.nick)).lower()
     receiver_l = str(trigger.group(3)).lower()
-    if(trigger.group(3) is None):
+    if(trigger.group(4) is None):
         willie.msg(sender_l, "tell <User> <Nachricht>")
         return
     
@@ -220,8 +225,12 @@ def addMessage(willie, trigger):
     if(receiver_l  not in botswana.pending_messages):
         botswana.pending_messages[receiver_l] = []
     
-    botswana.pending_messages[receiver_l].append(sender_l + " lässt ausrichten: \n" + str(trigger.group(3)))
     
+    ### I hope I find a better way soon…
+    botswana.pending_messages[receiver_l].append(sender_l + " lässt ausrichten: ")
+    botswana.pending_messages[receiver_l].append(str(' '.join(trigger.group(0).split(" ")[3:])))
+    botswana.pending_messages[receiver_l].append("\n")
+    willie.say("Erledigt")
     
 
 
@@ -229,11 +238,11 @@ def addMessage(willie, trigger):
 @willie.module.interval(3600)
 def wipeWeek(willie):
     if(datetime.time.hour == 6):
-        check()
+        check(willie)
     
 def setup(willie):
         oldState = load(willie, None)
-        botswana.active_list = {}
+        botswana.active_list = oldState.active_list
         botswana.week_list = oldState.week_list
         botswana.working_minutes = oldState.working_minutes
         botswana.pending_messages = oldState.pending_messages
@@ -248,6 +257,7 @@ def load(willie, trigger):
         print("Loading " + str(savedState))
         handle = open(savedState,'rb')
         saved = pickle.load(handle)
+        handle.close()
         # debug:
         print saved.week_list
     else:
@@ -255,7 +265,7 @@ def load(willie, trigger):
     return saved
 
 @willie.module.nickname_commands('.save')
-def shutdown(willie, trigger):
+def shutdown(willie):
     # save state to a pickle
     homedir = os.path.join(os.path.expanduser('~'), '.willie')
     savedState = os.path.join(homedir, "uptime.sav")
